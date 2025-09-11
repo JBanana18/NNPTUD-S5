@@ -6,22 +6,11 @@ async function LoadData() {
     let posts = await data.json();
     for (const post of posts) {
         let body = document.getElementById("body");
-        body.innerHTML += convertDataToHTML(post);
+        if(!post.isDelete){
+            body.innerHTML += convertDataToHTML(post);
+        }
+        
     }
-}
-function LoadDataA() {
-    fetch('http://localhost:3000/posts').then(
-        function (data) {
-            return data.json()
-        }
-    ).then(
-        function (posts) {
-            for (const post of posts) {
-                let body = document.getElementById("body");
-                body.innerHTML += convertDataToHTML(post);
-            }
-        }
-    )
 }
 
 function convertDataToHTML(post) {
@@ -34,68 +23,69 @@ function convertDataToHTML(post) {
     return result;
 }
 
+async function getMaxID(){
+    let res = await fetch('http://localhost:3000/posts');
+    let posts = await res.json();
+    //console.log(res);
+    let ids = posts.map(
+        function(e){
+            return Number.parseInt(e.id);
+        }
+    )
+    return Math.max(...ids);
+}
+
 
 
 //POST: domain:port//posts + body
-function SaveData(){
+async function SaveData(){
     let id = document.getElementById("id").value;
     let title = document.getElementById("title").value;
     let view = document.getElementById("view").value;
-    fetch("http://localhost:3000/posts/"+id).then(
-        function(data){
-            if(data.ok){
-                let dataObj = {
-                    title:title,
-                    views:view
-                }
-                fetch('http://localhost:3000/posts/'+id,
-                {
-                    method:'PUT',
-                    body:JSON.stringify(dataObj),
-                    headers:{
-                        "Content-Type":"application/json"
-                    }
-
-                }).then(
-                    function(data){
-                        console.log(data);
-                    }
-                )
-            }else{
-                let dataObj = {
-                    id:id,
-                    title:title,
-                    views:view
-                }
-                fetch('http://localhost:3000/posts',
-                {
-                    method:'POST',
-                    body:JSON.stringify(dataObj),
-                    headers:{
-                        "Content-Type":"application/json"
-                    }
-
-                }).then(
-                    function(data){
-                        console.log(data);
-                    }
-                )
+    let response = await fetch("http://localhost:3000/posts/"+id);
+    let dataObj = {
+        title:title,
+        views:view
+    }
+    if(response.ok){
+        let res = await fetch('http://localhost:3000/posts/'+id,
+        {
+            method:'PUT',
+            body:JSON.stringify(dataObj),
+            headers:{
+                "Content-Type":"application/json"
             }
-        }
-    )
 
-
-    
+        })
+        console.log(res);
+    }else{
+        dataObj.id = (await getMaxID()+1)+"";
+        let res = await fetch('http://localhost:3000/posts',
+        {
+            method:'POST',
+            body:JSON.stringify(dataObj),
+            headers:{
+                "Content-Type":"application/json"
+            }
+        })
+        console.log(res);
+    }    
 }
 //PUT: domain:port//posts/id + body
 
 //DELETE: domain:port//posts/id
-function Delete(id){
-    fetch('http://localhost:3000/posts/'+id,{
-        method:'Delete'
-    }).then(
-        function(){
-            console.log("Delete thanh cong");
-        }
-    )
+async function Delete(id){
+    let res = await fetch('http://localhost:3000/posts/'+id);
+    if(res.ok){
+        let obj = await res.json();
+        obj.isDelete =true;
+        let result = await fetch('http://localhost:3000/posts/'+id,{
+            method:'PUT',
+            body:JSON.stringify(obj),
+            headers:{
+                "Content-Type":"application/json"
+            }
+        })
+        console.log(result);
+    }
 }
