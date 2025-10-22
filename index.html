@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Posts Manager</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Quản Lý Bài Viết</h1>
+
+      <!-- Search Section -->
+      <div class="search-section">
+        <div class="search-box">
+          <label for="searchInput">Tìm kiếm theo tiêu đề:</label>
+          <input type="text" id="searchInput" placeholder="Nhập tiêu đề..." />
+          <div id="suggestions" class="suggestions"></div>
+        </div>
+      </div>
+
+      <!-- Views Range Slider -->
+      <div class="slider-section">
+        <h3>Lọc theo lượt xem</h3>
+        <div class="slider-container">
+          <div class="slider-labels">
+            <span>Min: <span id="minValue">0</span></span>
+            <span>Max: <span id="maxValue">5000</span></span>
+          </div>
+          <div class="slider-inputs">
+            <input
+              type="range"
+              id="minSlider"
+              min="0"
+              max="5000"
+              value="0"
+              step="10"
+            />
+            <input
+              type="range"
+              id="maxSlider"
+              min="0"
+              max="5000"
+              value="5000"
+              step="10"
+            />
+          </div>
+          <button id="applyFilter" class="btn">Áp dụng bộ lọc</button>
+        </div>
+      </div>
+
+      <!-- Posts Display -->
+      <div class="posts-section">
+        <h3>Danh sách bài viết</h3>
+        <div id="postsContainer" class="posts-container">
+          <p class="loading">Đang tải dữ liệu...</p>
+        </div>
+      </div>
+
+      <!-- Statistics -->
+      <div class="stats-section">
+        <p>Tổng số bài viết: <span id="totalPosts">0</span></p>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
