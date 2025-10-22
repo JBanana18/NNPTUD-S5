@@ -1,16 +1,18 @@
 LoadData();
+setNextId();
 //GET: domain:port//posts
 //GET: domain:port/posts/id
 async function LoadData() {
-    let data = await fetch('http://localhost:3000/posts');
-    let posts = await data.json();
-    for (const post of posts) {
-        let body = document.getElementById("body");
-        if(!post.isDelete){
-            body.innerHTML += convertDataToHTML(post);
-        }
-        
+  let data = await fetch("http://localhost:3000/posts");
+  let posts = await data.json();
+  let body = document.getElementById("body");
+  body.innerHTML = "";
+  for (const post of posts) {
+    if (!post.isDelete) {
+      body.innerHTML += convertDataToHTML(post);
     }
+  }
+  setNextId();
 }
 
 function convertDataToHTML(post) {
@@ -23,19 +25,18 @@ function convertDataToHTML(post) {
     return result;
 }
 
-async function getMaxID(){
-    let res = await fetch('http://localhost:3000/posts');
-    let posts = await res.json();
-    //console.log(res);
-    let ids = posts.map(
-        function(e){
-            return Number.parseInt(e.id);
-        }
-    )
-    return Math.max(...ids);
+async function getMaxID() {
+  let res = await fetch("http://localhost:3000/posts");
+  let posts = await res.json();
+  let ids = posts.map((e) => Number.parseInt(e.id));
+  if (ids.length === 0) return 0;
+  return Math.max(...ids);
 }
 
-
+async function setNextId() {
+  let nextId = (await getMaxID()) + 1;
+  document.getElementById("id").value = nextId;
+}
 
 //POST: domain:port//posts + body
 async function SaveData(){
@@ -69,23 +70,26 @@ async function SaveData(){
             }
         })
         console.log(res);
-    }    
+    } 
+    await LoadData();
+    
 }
 //PUT: domain:port//posts/id + body
 
 //DELETE: domain:port//posts/id
-async function Delete(id){
-    let res = await fetch('http://localhost:3000/posts/'+id);
-    if(res.ok){
-        let obj = await res.json();
-        obj.isDelete =true;
-        let result = await fetch('http://localhost:3000/posts/'+id,{
-            method:'PUT',
-            body:JSON.stringify(obj),
-            headers:{
-                "Content-Type":"application/json"
-            }
-        })
-        console.log(result);
-    }
+async function Delete(id) {
+  let res = await fetch("http://localhost:3000/posts/" + id);
+  if (res.ok) {
+    let obj = await res.json();
+    obj.isDelete = true;
+    let result = await fetch("http://localhost:3000/posts/" + id, {
+      method: "PUT",
+      body: JSON.stringify(obj),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    console.log(result);
+    await LoadData();
+  }
 }
