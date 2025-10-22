@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 let users = require('../schemas/users');
 let roles = require('../schemas/roles');
+let { Response } = require('../utils/responseHandler');
 
 /* GET users listing. */
 router.get('/', async function(req, res, next) {
@@ -9,24 +10,15 @@ router.get('/', async function(req, res, next) {
     path: 'role',
     select:'name'
   });
-  res.send({
-    success:true,
-    data:allUsers
-  });
+  Response(res, 200, true, allUsers);
 });
 router.get('/:id', async function(req, res, next) {
   try {
     let getUser = await users.findById(req.params.id);
     getUser = getUser.isDeleted ? new Error("ID not found") : getUser;
-    res.send({
-      success:true,
-      data:getUser
-    });
+    Response(res, 200, true, getUser);
   } catch (error) {
-     res.send({
-      success:true,
-      data:error
-    });
+    Response(res, 404, false, error);
   }
 });
 
@@ -42,10 +34,7 @@ router.post('/', async function(req, res, next) {
     role:roleId
   })
   await newUser.save();
-  res.send({
-      success:true,
-      data:newUser
-    })
+  Response(res, 200, true, newUser);
 });
 router.put('/:id', async function(req, res, next) {
   let user = await users.findById(req.params.id);
@@ -53,10 +42,7 @@ router.put('/:id', async function(req, res, next) {
   user.fullName = req.body.fullName?req.body.fullName:user.fullName;
   user.password = req.body.password?req.body.password:user.password;
   await user.save()
-  res.send({
-      success:true,
-      data:user
-    })
+  Response(res, 200, true, user);
 });
 
 module.exports = router;
