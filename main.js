@@ -132,6 +132,80 @@ app.put('/posts/:id',(req,res)=>{
     }
 })
 
+// CRUD cho category
+// Đọc file db.json
+function readDB() {
+    let data = fs.readFileSync('./db.json');
+    return JSON.parse(data);
+}
+
+function writeDB(data) {
+    fs.writeFileSync('./db.json', JSON.stringify(data));
+}
+
+// Tạo category
+app.post('/categories', (req, res) => {
+    let db = readDB();
+    if (!db.categories) db.categories = [];
+    let newCategory = {
+        id: Date.now().toString(),
+        name: req.body.name
+    };
+    db.categories.push(newCategory);
+    writeDB(db);
+    res.send({ success: true, data: newCategory });
+});
+
+// Lấy tất cả category
+app.get('/categories', (req, res) => {
+    let db = readDB();
+    let categories = (db.categories || []).filter(c => !c.isDeleted);
+    res.send(categories);
+});
+
+// Lấy category theo id
+app.get('/categories/:id', (req, res) => {
+    let db = readDB();
+    let id = req.params.id;
+    let categories = (db.categories || []).filter(c => c.id == id && !c.isDeleted);
+    if (categories.length > 0) {
+        res.send(categories[0]);
+    } else {
+        res.status(404).send({ success: false, data: { message: "id not found" } });
+    }
+});
+
+// Sửa category
+app.put('/categories/:id', (req, res) => {
+    let db = readDB();
+    let id = req.params.id;
+    let categories = db.categories || [];
+    let found = categories.find(c => c.id == id && !c.isDeleted);
+    if (found) {
+        found.name = req.body.name ? req.body.name : found.name;
+        writeDB(db);
+        res.send({ success: true, data: found });
+    } else {
+        res.status(404).send({ success: false, data: "ID not found" });
+    }
+});
+
+// Xóa category (đổi isDeleted về true)
+app.delete('/categories/:id', (req, res) => {
+    let db = readDB();
+    let id = req.params.id;
+    let categories = db.categories || [];
+    let found = categories.find(c => c.id == id && !c.isDeleted);
+    if (found) {
+        found.isDeleted = true;
+        writeDB(db);
+        res.send({ success: true, data: "Xoa thanh cong" });
+    } else {
+        res.status(404).send({ success: false, data: "ID not found" });
+    }
+});
+
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
