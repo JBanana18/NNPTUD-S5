@@ -1,9 +1,12 @@
-let mongoose = require('mongoose');
+let mongoose = require("mongoose");
 
-let roleSchema = new mongoose.Schema({
+let roleSchema = new mongoose.Schema(
+  {
     name: { type: String, required: true, unique: true },
-    description: { type: String },
-    isDeleted: { type: Boolean, default: false }
-}, { timestamps: true });
+    description: { type: String, default: "" },
+    isDelete: { type: Boolean, default: false },
+  },
+  { timestamps: true }
+);
 
-module.exports = mongoose.model('role', roleSchema);
+module.exports = mongoose.model("role", roleSchema);
